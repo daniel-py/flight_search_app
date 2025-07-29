@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'features/flight_search/presentation/onboarding_page.dart';
 
-void main() {
-  runApp( const ProviderScope(child: MyApp()));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -18,6 +21,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0D80F2)),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       home: const OnboardingPage(),
     );
   }
