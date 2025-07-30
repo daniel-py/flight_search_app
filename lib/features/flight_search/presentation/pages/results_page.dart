@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import '../../../core/flight_utils.dart';
-import '../data/models/flight.dart';
-import 'flight_details.dart';
-import 'providers.dart';
+import '../../../../core/flight_utils.dart';
+import '../../data/models/flight.dart';
+import '../providers/providers.dart';
+import 'flight_details_page.dart';
 
 class ResultsPage extends ConsumerWidget {
   const ResultsPage({super.key});
@@ -49,13 +49,8 @@ class ResultsPage extends ConsumerWidget {
               : Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Flight Search Summary
                     _buildSearchSummary(ref),
-
-                    // Sort & Filter Section
                     _buildSortFilterSection(),
-
-                    // Flight Results
                     Expanded(
                       child: _buildFlightResults(context, flights),
                     ),
@@ -75,11 +70,7 @@ class ResultsPage extends ConsumerWidget {
         );
       },
       child: Container(
-        // elevation: 4,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        // : RoundedRectangleBorder(
-        //   borderRadius: BorderRadius.circular(16),
-        // ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,7 +81,6 @@ class ResultsPage extends ConsumerWidget {
               height: 150,
               width: double.infinity,
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: const Color(0xFF1A5F7A)
-                  // isFirstCard ? const Color(0xFF1A5F7A) : Colors.white,
                   ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +94,6 @@ class ResultsPage extends ConsumerWidget {
                     child: Text(
                       '\$${_getMockPrice(flight)} • Economy',
                       style: const TextStyle(
-                        // color: isFirstCard ? Colors.white : Colors.grey[700],
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
                       ),
@@ -161,7 +150,6 @@ class ResultsPage extends ConsumerWidget {
           ),
         ),
 
-        // Page Indicators
         SmoothPageIndicator(
           controller: pageController,
           count: flights.length,
@@ -190,10 +178,8 @@ class ResultsPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Route Display
           Row(
             children: [
-              // Departure
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,7 +203,6 @@ class ResultsPage extends ConsumerWidget {
                 ),
               ),
 
-              // Swap Button
               Container(
                 width: 48,
                 height: 48,
@@ -226,7 +211,7 @@ class ResultsPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Transform.rotate(
-                  angle: 1.5708, // 90 degrees in radians (π/2)
+                  angle: 1.5708,
                   child: Icon(
                     Icons.flight,
                     color: Colors.grey[700],
@@ -235,7 +220,6 @@ class ResultsPage extends ConsumerWidget {
                 ),
               ),
 
-              // Arrival
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -263,7 +247,6 @@ class ResultsPage extends ConsumerWidget {
 
           const SizedBox(height: 12),
 
-          // Date and Passenger Info
           Text(
             FlightUtils.formatDateAndPassengers(departureDate, passengers),
             style: TextStyle(

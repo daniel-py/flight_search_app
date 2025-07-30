@@ -1,16 +1,7 @@
 import 'package:dio/dio.dart';
 
-import '../data/flights_datasource.dart';
-
-abstract class FlightsRepository {
-  Future<Response> fetchCities({int offset = 0});
-
-  Future<Response> fetchFlights({
-    required String departureCity,
-    required String arrivalCity,
-    required String departureDate,
-  });
-}
+import '../../domain/repositories/flights_repository.dart';
+import '../datasources/flights_datasource.dart';
 
 class FlightsRepositoryImpl implements FlightsRepository {
   final FlightsDataSource _dataSource;

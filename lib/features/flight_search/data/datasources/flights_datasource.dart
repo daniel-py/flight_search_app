@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import '../../../core/constants.dart';
+import '../../../../core/constants.dart';
 
 class FlightsDataSource {
   final Dio _dio = Dio();
@@ -33,8 +33,8 @@ class FlightsDataSource {
   }) async {
     return await _dio.get('/flights', queryParameters: {
       'access_key': _apiKey,
-      'dep_iata': departureCity, //'jfk', //
-      'arr_iata': arrivalCity, //'lax', //
+      'dep_iata':'jfk', // departureCity, //
+      'arr_iata': 'lax', //arrivalCity, //
       'flight_date': departureDate,
     });
   }

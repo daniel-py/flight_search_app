@@ -3,8 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../../core/flight_utils.dart';
-import '../data/models/flight.dart';
+import '../../../../core/flight_utils.dart';
+import '../../data/models/flight.dart';
 
 class FlightDetailsPage extends ConsumerWidget {
   final Flight flight;
@@ -106,7 +106,6 @@ class FlightDetailsPage extends ConsumerWidget {
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          // Handle booking logic
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue,
@@ -216,11 +215,9 @@ class FlightDetailsPage extends ConsumerWidget {
   }
 
   Widget _buildMapSection() {
-    // Get flight coordinates from live data
     final latitude = flight.live?.latitude;
     final longitude = flight.live?.longitude;
     
-    // Default coordinates (New York) if no live data available
     const defaultLat = 40.7128;
     const defaultLng = -74.0060;
     
@@ -267,7 +264,6 @@ class FlightDetailsPage extends ConsumerWidget {
                 ),
               ],
             ),
-            // Overlay to show flight route info
             Positioned(
               top: 8,
               left: 8,
@@ -287,7 +283,6 @@ class FlightDetailsPage extends ConsumerWidget {
                 ),
               ),
             ),
-            // Coordinates overlay
             Positioned(
               bottom: 8,
               right: 8,

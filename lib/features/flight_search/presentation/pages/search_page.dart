@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-import '../data/models/city.dart';
-import 'providers.dart';
+import '../../data/models/city.dart';
+import '../providers/providers.dart';
 import 'results_page.dart';
 
 class SearchPage extends ConsumerWidget {
@@ -20,10 +20,6 @@ class SearchPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0, automaticallyImplyLeading: false,
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back, color: Colors.black),
-        //   onPressed: () => Navigator.pop(context),
-        // ),
         title: const Text(
           'Search Flights',
           style: TextStyle(
@@ -148,9 +144,6 @@ class SearchPage extends ConsumerWidget {
               activeColor: Colors.blue,
               inactiveTrackColor: const Color(0xFFE8EDF5),
               activeTrackColor: Colors.blue,
-              //   trackOutlineWidth: WidgetStateProperty.resolveWith<double?>((states) {
-              //     return 5;
-              //   }),
               thumbColor: WidgetStateProperty.resolveWith<Color?>((states) {
                 if (states.contains(WidgetState.selected)) {
                   return Colors.white;
@@ -196,13 +189,12 @@ class SearchPage extends ConsumerWidget {
       },
       selectedItem: selectedCity,
       onChanged: onChanged,
-      itemAsString: (City city) => '${city.cityName} (${city.iataCode})',
+      itemAsString: (City city) => '${city.cityName} (${city.countryIso2})',
       dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
           labelText: label,
             contentPadding: const EdgeInsets.all(16),
             labelStyle: const TextStyle(fontSize: 16, color: Colors.black),
-            //   prefixIcon: Icon(icon, color: Colors.grey[600]),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             ),
@@ -277,7 +269,6 @@ class SearchPage extends ConsumerWidget {
         _buildFilterRow('Direct Flights Only', flightsController.directFlightsOnly, (value) {
           flightsController.setDirectFlightsOnly(value);
         }),
-        // const SizedBox(height: 12),
         _buildFilterRow('Include Nearby Airports', flightsController.includeNearbyAirports, (value) {
           flightsController.setIncludeNearbyAirports(value);
         }),
@@ -290,9 +281,10 @@ class SearchPage extends ConsumerWidget {
   }
 
   Widget _buildSearchButton(flightsController, WidgetRef ref, BuildContext context) {
-    final isFormValid = flightsController.fromCity != null &&
-        flightsController.toCity != null &&
-        flightsController.departureDate != null;
+    final isFormValid = flightsController.fromCity != null && 
+                       flightsController.toCity != null && 
+                       flightsController.departureDate != null &&
+                       flightsController.fromCity != flightsController.toCity;
     
     return SizedBox(
       width: double.infinity,
@@ -319,6 +311,7 @@ class SearchPage extends ConsumerWidget {
                 } catch (e) {
                   SmartDialog.dismiss();
                   String errorMessage = 'An error occurred while searching flights.';
+
                   SmartDialog.showToast(errorMessage);
                 }
               }

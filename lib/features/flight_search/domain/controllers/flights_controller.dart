@@ -4,9 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-import '../data/models/city.dart';
-import '../data/models/flight.dart';
-import '../domain/flights_repository.dart';
+import '../../data/models/city.dart';
+import '../../data/models/flight.dart';
+import '../repositories/flights_repository.dart';
 
 class FlightsController extends ChangeNotifier {
   final FlightsRepository flightsRepository;
@@ -16,7 +16,6 @@ class FlightsController extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   
-  // Search parameters
   City? _fromCity;
   City? _toCity;
   DateTime? _departureDate;
@@ -92,7 +91,6 @@ class FlightsController extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
-      // Use stored search parameters
       final departureCity = _fromCity?.iataCode ?? '';
       final arrivalCity = _toCity?.iataCode ?? '';
       final departureDate = _departureDate != null
@@ -116,7 +114,6 @@ class FlightsController extends ChangeNotifier {
         return false;
       }
     } catch (e, stack) {
-      // Check if it's a subscription limitation error
       if (e.toString().contains('function_access_restricted') ||
           e.toString().contains('403') ||
           e.toString().contains('subscription')) {
@@ -145,7 +142,6 @@ class FlightsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Individual setter methods
   void setFromCity(City? city) {
     _fromCity = city;
     notifyListeners();
@@ -177,7 +173,6 @@ class FlightsController extends ChangeNotifier {
   }
 
   List<Flight> _getMockFlights() {
-    // Use stored search parameters
     final departureCity = _fromCity?.iataCode ?? 'JFK';
     final arrivalCity = _toCity?.iataCode ?? 'LAX';
     final departureDate = _departureDate != null

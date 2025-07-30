@@ -39,7 +39,6 @@ class FlightUtils {
   }
 
   static String getMockPrice(Flight flight) {
-    // Generate mock prices based on airline
     final airline = flight.airline?.name ?? '';
     if (airline.contains('American')) return '428';
     if (airline.contains('Delta')) return '520';
