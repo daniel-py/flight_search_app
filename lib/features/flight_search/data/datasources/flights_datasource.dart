@@ -33,8 +33,8 @@ class FlightsDataSource {
   }) async {
     return await _dio.get('/flights', queryParameters: {
       'access_key': _apiKey,
-      'dep_iata':'jfk', // departureCity, //
-      'arr_iata': 'lax', //arrivalCity, //
+      'dep_iata': departureCity, //'jfk', //
+      'arr_iata': arrivalCity, //'lax', //
       'flight_date': departureDate,
     });
   }
