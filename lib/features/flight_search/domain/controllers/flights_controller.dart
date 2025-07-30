@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import '../../data/models/city.dart';
 import '../../data/models/flight.dart';
@@ -85,7 +84,7 @@ class FlightsController extends ChangeNotifier {
     }
   }
 
-  Future<bool?> fetchFlights() async {
+  Future<String?> fetchFlights() async {
     try {
       _isLoading = true;
       _errorMessage = null;
@@ -107,20 +106,19 @@ class FlightsController extends ChangeNotifier {
         final List<dynamic> data = response.data['data'] ?? [];
         _flights = data.map((json) => Flight.fromJson(json)).toList();
         log('Fetched flights: ${_flights.length} flights found');
-        return true;
+        return 'success';
       } else {
         _errorMessage = 'Failed to fetch flights: ${response.statusCode}';
         log('Error fetching flights: ${response.statusCode}');
-        return false;
+        return 'error';
       }
     } catch (e, stack) {
       if (e.toString().contains('function_access_restricted') ||
           e.toString().contains('403') ||
           e.toString().contains('subscription')) {
-        SmartDialog.showToast("Using mock data due to subscription limitation");
         log('Using mock data due to subscription limitation');
         _flights = _getMockFlights();
-        return true;
+        return 'mock_data';
       }
       
       _errorMessage = 'Error fetching flights: ${e.toString()}';

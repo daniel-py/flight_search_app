@@ -298,7 +298,15 @@ class SearchPage extends ConsumerWidget {
                   final result = await ref.read(flightsProvider).fetchFlights();
                   SmartDialog.dismiss();
 
-                  if (result == true) {
+                  if (result == 'success') {
+                    Navigator.push(
+                      navigatorContext,
+                      MaterialPageRoute(
+                        builder: (context) => const ResultsPage(),
+                      ),
+                    );
+                  } else if (result == 'mock_data') {
+                    SmartDialog.showToast("Using mock data due to subscription limitation");
                     Navigator.push(
                       navigatorContext,
                       MaterialPageRoute(
