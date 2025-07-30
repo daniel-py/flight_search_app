@@ -39,6 +39,11 @@ dependencies:
   flutter_dotenv: ^5.1.0
   dio: ^5.4.0
   dropdown_search: ^5.0.6
+  flutter_easyloading: ^3.0.5
+  flutter_smart_dialog: ^3.0.0
+  intl: ^0.19.0
+  flutter_map: ^7.0.0
+  latlong2: ^0.9.0
 
 dev_dependencies:
   flutter_test:
@@ -95,3 +100,42 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  fonts:
+    - family: Jakarta Sans
+      fonts:
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic

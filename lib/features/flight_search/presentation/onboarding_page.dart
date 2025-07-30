@@ -122,7 +122,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     SmoothPageIndicator(
                       controller: _pageController,
                       count: _onboardingData.length,
-                      effect: WormEffect(
+                      effect: ScrollingDotsEffect(
                         dotHeight: 8,
                         dotWidth: 8,
                         spacing: 8,
@@ -133,7 +133,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     const Spacer(),
                     SizedBox(
                       width: double.infinity,
-                      height: 48,
+                      height: 50,
                       child: ElevatedButton(
                         onPressed: _nextPage,
                         style: ElevatedButton.styleFrom(

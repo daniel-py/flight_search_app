@@ -382,7 +382,7 @@ class FlightInfo {
   final String? number;
   final String? iata;
   final String? icao;
-  final String? codeshared;
+  final Map<String, dynamic>? codeshared;
 
   FlightInfo({
     this.number,
@@ -396,7 +396,7 @@ class FlightInfo {
       number: json['number'],
       iata: json['iata'],
       icao: json['icao'],
-      codeshared: json['codeshared'],
+      codeshared: json['codeshared'] is Map<String, dynamic> ? json['codeshared'] : null,
     );
   }
 

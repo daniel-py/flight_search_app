@@ -2,35 +2,21 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import '../data/models/city.dart';
 import 'providers.dart';
+import 'results_page.dart';
 
-class SearchPage extends ConsumerStatefulWidget {
+class SearchPage extends ConsumerWidget {
   const SearchPage({super.key});
 
   @override
-  ConsumerState<SearchPage> createState() => _SearchPageState();
-}
-
-class _SearchPageState extends ConsumerState<SearchPage> {
-  String _selectedTripType = 'One way';
-  bool _directFlightsOnly = false;
-  bool _includeNearbyAirports = false;
-  final String _travelClass = 'Economy';
-  final int _passengers = 1;
-  City? _selectedFromCity;
-  City? _selectedToCity;
-  DateTime? _selectedDepartureDate;
-
-  final List<String> _tripTypes = ['One way', 'Round trip', 'Multi-City'];
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final flightsController = ref.watch(flightsProvider);
     
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0, automaticallyImplyLeading: false,
@@ -42,7 +28,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           'Search Flights',
           style: TextStyle(
             color: Colors.black,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700, fontSize: 18
           ),
         ),
         centerTitle: true,
@@ -52,26 +38,26 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildLocationFields(flightsController),
+            _buildLocationFields(flightsController, ref),
             const SizedBox(height: 24),
-            _buildTripTypeSelector(),
+            _buildTripTypeSelector(flightsController),
             const SizedBox(height: 24),
-            _buildDepartureDateField(),
+            _buildDepartureDateField(flightsController, context),
             const SizedBox(height: 32),
-            _buildOptionalFilters(),
+            _buildOptionalFilters(flightsController),
             const SizedBox(height: 40),
-            _buildSearchButton(),
+            _buildSearchButton(flightsController, ref, context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDepartureDateField() {
+  Widget _buildDepartureDateField(flightsController, BuildContext context) {
     return GestureDetector(
       onTap: () {
         final now = DateTime.now();
-        final initialDate = _selectedDepartureDate ?? now;
+        final initialDate = flightsController.departureDate ?? now;
         
         showCupertinoModalPopup(
           context: context,
@@ -94,10 +80,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                         CupertinoButton(
                           child: const Text('Done'),
                           onPressed: () {
-                            if (_selectedDepartureDate == null) {
-                              setState(() {
-                                _selectedDepartureDate = now;
-                              });
+                            if (flightsController.departureDate == null) {
+                              flightsController.setDepartureDate(now);
                             }
                             Navigator.pop(context);
                           },
@@ -111,9 +95,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                       initialDateTime: initialDate.isBefore(now) ? now : initialDate,
                       minimumDate: now,
                       onDateTimeChanged: (DateTime newDate) {
-                        setState(() {
-                          _selectedDepartureDate = newDate;
-                        });
+                        flightsController.setDepartureDate(newDate);
                       },
                     ),
                   ),
@@ -124,28 +106,22 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFFE8EDF5),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[300]!),
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today, color: Colors.grey[600], size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                _selectedDepartureDate != null
-                    ? '${_selectedDepartureDate!.year}-${_selectedDepartureDate!.month.toString().padLeft(2, '0')}-${_selectedDepartureDate!.day.toString().padLeft(2, '0')}'
-                    : 'Departure Date',
-                style: TextStyle(
-                  color: _selectedDepartureDate != null ? Colors.black : Colors.grey[600],
-                  fontSize: 16,
-                ),
+            Text(
+              flightsController.departureDate != null
+                  ? '${flightsController.departureDate!.year}-${flightsController.departureDate!.month.toString().padLeft(2, '0')}-${flightsController.departureDate!.day.toString().padLeft(2, '0')}'
+                  : 'Departure Date',
+              style: TextStyle(
+                color: flightsController.departureDate != null ? Colors.black : const Color(0xFF4A739C),
+                fontSize: 16,
               ),
             ),
-            Icon(Icons.keyboard_arrow_down, color: Colors.grey[600]),
           ],
         ),
       ),
@@ -154,7 +130,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
 
   Widget _buildFilterRow(String label, bool? isSwitch, Function(bool)? onChanged, {String? value}) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -170,6 +146,20 @@ class _SearchPageState extends ConsumerState<SearchPage> {
               value: isSwitch,
               onChanged: onChanged,
               activeColor: Colors.blue,
+              inactiveTrackColor: const Color(0xFFE8EDF5),
+              activeTrackColor: Colors.blue,
+              //   trackOutlineWidth: WidgetStateProperty.resolveWith<double?>((states) {
+              //     return 5;
+              //   }),
+              thumbColor: WidgetStateProperty.resolveWith<Color?>((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.white;
+                }
+                return Colors.white;
+              }),
+              trackOutlineColor: WidgetStateProperty.resolveWith<Color?>((states) {
+                return Colors.transparent;
+              }),
             )
           else if (value != null)
             Text(
@@ -190,6 +180,7 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     City? selectedCity,
     Function(City?) onChanged,
     flightsController,
+    WidgetRef ref,
   ) {
     return DropdownSearch<City>(
       asyncItems: (String filter) async {
@@ -209,18 +200,22 @@ class _SearchPageState extends ConsumerState<SearchPage> {
       dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon, color: Colors.grey[600]),
+            contentPadding: const EdgeInsets.all(16),
+            labelStyle: const TextStyle(fontSize: 16, color: Colors.black),
+            //   prefixIcon: Icon(icon, color: Colors.grey[600]),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[300]!),
-          ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE8EDF5)),
+            ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Colors.blue),
           ),
+            filled: true,
+            fillColor: const Color(0xFFE8EDF5)
         ),
       ),
       popupProps: PopupProps.menu(
@@ -238,37 +233,35 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     );
   }
 
-  Widget _buildLocationFields(flightsController) {
+  Widget _buildLocationFields(flightsController, WidgetRef ref) {
     return Column(
       children: [
         _buildLocationField(
           'From',
           Icons.flight_takeoff,
-          _selectedFromCity,
+          flightsController.fromCity,
           (City? city) {
-            setState(() {
-              _selectedFromCity = city;
-            });
+            flightsController.setFromCity(city);
           },
           flightsController,
+          ref,
         ),
         const SizedBox(height: 16),
         _buildLocationField(
           'To',
           Icons.flight_land,
-          _selectedToCity,
+          flightsController.toCity,
           (City? city) {
-            setState(() {
-              _selectedToCity = city;
-            });
+            flightsController.setToCity(city);
           },
           flightsController,
+          ref,
         ),
       ],
     );
   }
 
-  Widget _buildOptionalFilters() {
+  Widget _buildOptionalFilters(flightsController) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -281,74 +274,96 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           ),
         ),
         const SizedBox(height: 16),
-        _buildFilterRow('Direct Flights Only', _directFlightsOnly, (value) {
-          setState(() {
-            _directFlightsOnly = value;
-          });
+        _buildFilterRow('Direct Flights Only', flightsController.directFlightsOnly, (value) {
+          flightsController.setDirectFlightsOnly(value);
         }),
-        const SizedBox(height: 12),
-        _buildFilterRow('Include Nearby Airports', _includeNearbyAirports, (value) {
-          setState(() {
-            _includeNearbyAirports = value;
-          });
+        // const SizedBox(height: 12),
+        _buildFilterRow('Include Nearby Airports', flightsController.includeNearbyAirports, (value) {
+          flightsController.setIncludeNearbyAirports(value);
         }),
-        const SizedBox(height: 12),
-        _buildFilterRow('Travel Class', null, null, value: _travelClass),
-        const SizedBox(height: 12),
-        _buildFilterRow('Passengers', null, null, value: _passengers.toString()),
+        const SizedBox(height: 14),
+        _buildFilterRow('Travel Class', null, null, value: flightsController.travelClass),
+        const SizedBox(height: 20),
+        _buildFilterRow('Passengers', null, null, value: flightsController.passengers.toString()),
       ],
     );
   }
 
-  Widget _buildSearchButton() {
+  Widget _buildSearchButton(flightsController, WidgetRef ref, BuildContext context) {
+    final isFormValid = flightsController.fromCity != null &&
+        flightsController.toCity != null &&
+        flightsController.departureDate != null;
+    
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: 50,
       child: ElevatedButton(
-        onPressed: () {
-          // TODO: Implement search functionality
-        },
+        onPressed: isFormValid
+            ? () async {
+                final navigatorContext = context;
+                SmartDialog.showLoading();
+                try {
+                  final result = await ref.read(flightsProvider).fetchFlights();
+                  SmartDialog.dismiss();
+
+                  if (result == true) {
+                    Navigator.push(
+                      navigatorContext,
+                      MaterialPageRoute(
+                        builder: (context) => const ResultsPage(),
+                      ),
+                    );
+                  } else {
+                    SmartDialog.showToast('Failed to fetch flights. Please try again.');
+                  }
+                } catch (e) {
+                  SmartDialog.dismiss();
+                  String errorMessage = 'An error occurred while searching flights.';
+                  SmartDialog.showToast(errorMessage);
+                }
+              }
+            : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(24),
           ),
           elevation: 0,
         ),
         child: const Text(
           'Search Flights',
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTripTypeSelector() {
+  Widget _buildTripTypeSelector(flightsController) {
+    final tripTypes = ['One way', 'Round trip', 'Multi-City'];
+    
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(8),
+        color: const Color(0xFFEBEDF2),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
-        children: _tripTypes.map((type) {
-          final isSelected = type == _selectedTripType;
+        children: tripTypes.map((type) {
+          final isSelected = type == flightsController.tripType;
           return Expanded(
             child: GestureDetector(
               onTap: () {
-                setState(() {
-                  _selectedTripType = type;
-                });
+                flightsController.setTripType(type);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
@@ -363,8 +378,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                   type,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: isSelected ? Colors.black : Colors.grey[600],
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected ? Colors.black : const Color(0xFF5C738A),
+                    fontWeight: FontWeight.w500,
                     fontSize: 14,
                   ),
                 ),
