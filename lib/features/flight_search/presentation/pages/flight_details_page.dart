@@ -6,7 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/flight_utils.dart';
 import '../../data/models/flight.dart';
 
-class FlightDetailsPage extends ConsumerWidget {
+class FlightDetailsPage extends ConsumerStatefulWidget {
   final Flight flight;
 
   const FlightDetailsPage({
@@ -15,7 +15,19 @@ class FlightDetailsPage extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FlightDetailsPage> createState() => _FlightDetailsPageState();
+}
+
+class _FlightDetailsPageState extends ConsumerState<FlightDetailsPage> with TickerProviderStateMixin {
+  late AnimationController _entranceController;
+  late AnimationController _contentController;
+
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -25,38 +37,99 @@ class FlightDetailsPage extends ConsumerWidget {
           icon: const Icon(Icons.close, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Flight Details',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
+        title: FadeTransition(
+          opacity: _fadeAnimation,
+          child: const Text(
+            'Flight Details',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+            ),
           ),
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildFlightDetailsSection(),
-            const SizedBox(height: 24),
-            _buildFlightInformationSection(),
-            const SizedBox(height: 24),
-            _buildMapSection(),
-            const SizedBox(height: 24),
-            _buildBaggageInformationSection(),
-            const SizedBox(height: 24),
-            _buildPoliciesSection(),
-            const SizedBox(height: 24),
-            _buildAmenitiesSection(),
-            const SizedBox(height: 24),
-            _buildBottomButton()
-          ],
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildFlightDetailsSection(),
+                  const SizedBox(height: 24),
+                  _buildFlightInformationSection(),
+                  const SizedBox(height: 24),
+                  _buildMapSection(),
+                  const SizedBox(height: 24),
+                  _buildBaggageInformationSection(),
+                  const SizedBox(height: 24),
+                  _buildPoliciesSection(),
+                  const SizedBox(height: 24),
+                  _buildAmenitiesSection(),
+                  const SizedBox(height: 24),
+                  _buildBottomButton()
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _entranceController = AnimationController(
+      duration: const Duration(milliseconds: 700),
+      vsync: this,
+    );
+
+    _contentController = AnimationController(
+      duration: const Duration(milliseconds: 900),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.25),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.97,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutBack,
+    ));
+
+    // Start entrance animation
+    _entranceController.forward();
   }
 
   Widget _buildAmenitiesSection() {
@@ -89,7 +162,7 @@ class FlightDetailsPage extends ConsumerWidget {
         _buildDetailItem(
           Icons.luggage,
           'Checked Baggage',
-          "${flight.arrival?.baggage??0} checked bag(s)",
+          "${widget.flight.arrival?.baggage ?? 0} checked bag(s)",
         ),
         _buildDetailItem(
           Icons.shopping_bag,
@@ -179,13 +252,13 @@ class FlightDetailsPage extends ConsumerWidget {
       [
         _buildDetailItem(
           Icons.language,
-          flight.airline?.name ?? 'Unknown Airline',
-          'Flight Number: ${flight.flight?.number ?? flight.flight?.iata ?? 'N/A'}',
+          widget.flight.airline?.name ?? 'Unknown Airline',
+          'Flight Number: ${widget.flight.flight?.number ?? widget.flight.flight?.iata ?? 'N/A'}',
         ),
         _buildDetailItem(
           Icons.flight,
           'Aircraft Type',
-          flight.aircraft?.iata ?? flight.aircraft?.icao ?? 'Unknown',
+          widget.flight.aircraft?.iata ?? widget.flight.aircraft?.icao ?? 'Unknown',
         ),
       ],
     );
@@ -203,20 +276,20 @@ class FlightDetailsPage extends ConsumerWidget {
         _buildDetailItem(
           Icons.access_time,
           'Total Duration',
-          FlightUtils.calculateDuration(flight),
+          FlightUtils.calculateDuration(widget.flight),
         ),
         _buildDetailItem(
           Icons.location_on,
           'Layovers and Stops',
-          FlightUtils.getStopInfo(flight),
+          FlightUtils.getStopInfo(widget.flight),
         ),
       ],
     );
   }
 
   Widget _buildMapSection() {
-    final latitude = flight.live?.latitude;
-    final longitude = flight.live?.longitude;
+    final latitude = widget.flight.live?.latitude;
+    final longitude = widget.flight.live?.longitude;
     
     const defaultLat = 40.7128;
     const defaultLng = -74.0060;
@@ -274,7 +347,7 @@ class FlightDetailsPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  '${flight.departure?.iata ?? 'N/A'} → ${flight.arrival?.iata ?? 'N/A'}',
+                  '${widget.flight.departure?.iata ?? 'N/A'} → ${widget.flight.arrival?.iata ?? 'N/A'}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,

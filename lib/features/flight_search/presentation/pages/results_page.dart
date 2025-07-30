@@ -7,11 +7,23 @@ import '../../data/models/flight.dart';
 import '../providers/providers.dart';
 import 'flight_details_page.dart';
 
-class ResultsPage extends ConsumerWidget {
+class ResultsPage extends ConsumerStatefulWidget {
   const ResultsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ResultsPage> createState() => _ResultsPageState();
+}
+
+class _ResultsPageState extends ConsumerState<ResultsPage> with TickerProviderStateMixin {
+  late AnimationController _entranceController;
+  late AnimationController _cardController;
+
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  Widget build(BuildContext context) {
     final flightsController = ref.watch(flightsProvider);
     final flights = flightsController.flights;
 
@@ -24,39 +36,100 @@ class ResultsPage extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Flights',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
+        title: FadeTransition(
+          opacity: _fadeAnimation,
+          child: const Text(
+            'Flights',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+            ),
           ),
         ),
         centerTitle: true,
       ),
-      body: flightsController.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : flights.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No flights found',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey,
-                    ),
-                  ),
-                )
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildSearchSummary(ref),
-                    _buildSortFilterSection(),
-                    Expanded(
-                      child: _buildFlightResults(context, flights),
-                    ),
-                  ],
-                ),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: flightsController.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : flights.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No flights found',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildSearchSummary(ref),
+                          _buildSortFilterSection(),
+                          Expanded(
+                            child: _buildFlightResults(context, flights),
+                          ),
+                        ],
+                      ),
+          ),
+        ),
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    _cardController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _entranceController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    
+    _cardController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.2),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.98,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutBack,
+    ));
+
+    // Start entrance animation
+    _entranceController.forward();
   }
 
   Widget _buildFlightCard(BuildContext context, Flight flight, int index) {

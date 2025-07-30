@@ -8,45 +8,123 @@ import '../../data/models/city.dart';
 import '../providers/providers.dart';
 import 'results_page.dart';
 
-class SearchPage extends ConsumerWidget {
+class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SearchPage> createState() => _SearchPageState();
+}
+
+class _SearchPageState extends ConsumerState<SearchPage> with TickerProviderStateMixin {
+  late AnimationController _entranceController;
+  late AnimationController _staggerController;
+
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  Widget build(BuildContext context) {
     final flightsController = ref.watch(flightsProvider);
     
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0, automaticallyImplyLeading: false,
-        title: const Text(
-          'Search Flights',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w700, fontSize: 18
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: const Text(
+              'Search Flights',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
+            ),
           ),
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildLocationFields(flightsController, ref),
-            const SizedBox(height: 24),
-            _buildTripTypeSelector(flightsController),
-            const SizedBox(height: 24),
-            _buildDepartureDateField(flightsController, context),
-            const SizedBox(height: 32),
-            _buildOptionalFilters(flightsController),
-            const SizedBox(height: 40),
-            _buildSearchButton(flightsController, ref, context),
-          ],
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLocationFields(flightsController, ref),
+                  const SizedBox(height: 24),
+                  _buildTripTypeSelector(flightsController),
+                  const SizedBox(height: 24),
+                  _buildDepartureDateField(flightsController, context),
+                  const SizedBox(height: 32),
+                  _buildOptionalFilters(flightsController),
+                  const SizedBox(height: 40),
+                  _buildSearchButton(flightsController, ref, context),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    _staggerController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _entranceController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _staggerController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.95,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: Curves.easeOutBack,
+    ));
+
+    // Start entrance animation
+    _entranceController.forward();
   }
 
   Widget _buildDepartureDateField(flightsController, BuildContext context) {
