@@ -2,10 +2,6 @@
 
 A Flutter application for searching flights using the AviationStack API.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
 ### Setup
 
 1. **Install Dependencies**
