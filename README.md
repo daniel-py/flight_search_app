@@ -29,4 +29,4 @@ This project is a starting point for a Flutter application.
 
 ### API Configuration
 
-The app uses the AviationStack API for flight data. 
+The app uses the AviationStack API for flight data. it may keep returning mock data because searching with date only works with a paid plan
