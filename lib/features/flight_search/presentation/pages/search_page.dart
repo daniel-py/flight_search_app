@@ -123,7 +123,6 @@ class _SearchPageState extends ConsumerState<SearchPage> with TickerProviderStat
       curve: Curves.easeOutBack,
     ));
 
-    // Start entrance animation
     _entranceController.forward();
   }
 

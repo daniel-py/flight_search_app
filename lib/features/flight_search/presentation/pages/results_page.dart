@@ -128,7 +128,6 @@ class _ResultsPageState extends ConsumerState<ResultsPage> with TickerProviderSt
       curve: Curves.easeOutBack,
     ));
 
-    // Start entrance animation
     _entranceController.forward();
   }
 

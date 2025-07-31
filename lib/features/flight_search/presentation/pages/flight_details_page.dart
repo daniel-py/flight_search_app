@@ -128,7 +128,6 @@ class _FlightDetailsPageState extends ConsumerState<FlightDetailsPage> with Tick
       curve: Curves.easeOutBack,
     ));
 
-    // Start entrance animation
     _entranceController.forward();
   }
 
